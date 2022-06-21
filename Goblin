@@ -1,0 +1,33 @@
+
+#include "Goblin.h"
+
+
+////---Constructor---////
+
+Goblin::Goblin() : Battle(FORCE,LOOT,HPONLOSS,"Goblin")
+{}
+
+////---Print-Function---////
+std::ostream& Goblin::print_stats(ostream& out)const
+{
+    printCardDetails(out,"Goblin");
+    printMonsterDetails(out,FORCE,HPONLOSS,LOOT,false);
+}
+
+void Goblin::applyEncounter(Player &player)  {
+
+    if(player.getLevel()>=FORCE)
+    {
+
+        player.addCoins(LOOT);
+        player.levelUp();
+        printWinBattle(player.get_name(),"Goblin");
+
+    }
+    else
+    {
+        player.damage(HPONLOSS);
+        printLossBattle(player.get_name(),"Goblin");
+
+    }
+}
