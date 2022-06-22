@@ -5,8 +5,12 @@
 #include "Mtmchkin.h"
 #define SPACE " "
 
-Mtmchkin::Mtmchkin(const std::string fileName):m_roundPlayed(1),m_winners(std::deque<unique_ptr<Player>>()),
+/*
+ * :m_roundPlayed(1),m_winners(std::deque<unique_ptr<Player>>()),
 m_losers(std::deque<unique_ptr<Player>>()),m_PlayersDeck(std::deque<unique_ptr<Player>>()),m_CardsDeck(std::deque<unique_ptr<Card>>())
+
+ */
+Mtmchkin::Mtmchkin(const std::string fileName)
 {
     printStartGameMessage();
 
