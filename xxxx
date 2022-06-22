@@ -5,16 +5,43 @@
 #include "Mtmchkin.h"
 #define SPACE " "
 
-Mtmchkin::Mtmchkin(const std::string fileName)
+Mtmchkin::Mtmchkin(const std::string fileName):m_roundPlayed(1),m_winners(std::deque<unique_ptr<Player>>()),
+m_losers(std::deque<unique_ptr<Player>>()),m_PlayersDeck(std::deque<unique_ptr<Player>>()),m_CardsDeck(std::deque<unique_ptr<Card>>())
 {
     printStartGameMessage();
 
+    ifstream myFile(fileName);
+    int cardsCounter=0;
+    string type;
+    if(!myFile)
+    {
+        throw DeckFileNotFound();
+    }
+
+    while(std::getline(myFile,type))
+    {
+        if(checkCardType(type))
+        {
+            m_CardsDeck.push_back(std::move(classifyCards(type)));
+        }
+        else
+        {
+            string tmp=std::to_string(cardsCounter);
+            throw DeckFileFormatError(tmp);
+        }
+        cardsCounter++;
+    }
+    if( cardsCounter < 5 )
+    {
+        throw DeckFileInvalidSize();
+    }
+    myFile.close();
+
+
     printEnterTeamSizeMessage();
-    getNumOfPlayers(m_playersNumber);
-
-    fillPlayerDeck();
-
-    fillCardsDeck(fileName);
+    int tmp=0;
+    fillPlayerDeck(tmp);
+    m_playersNumber=tmp;
 }
 
 ///////////------Filling Queues------///////////
@@ -42,17 +69,16 @@ void Mtmchkin::fillCardsDeck(const std::string& fileName)
         }
         cardsCounter++;
     }
-    if( m_CardsDeck.size() < 5 )
+    if( cardsCounter < 5 )
     {
         throw DeckFileInvalidSize();
     }
+    myFile.close();
 }
 
 
 
-void Mtmchkin::getNumOfPlayers(int &numOfPlayers){
-    std::string numInput;
-    getline(std::cin, numInput);
+void Mtmchkin::getNumOfPlayers(string &numInput, int &numOfPlayers){
     if( numInput != "" && numInput.find_first_not_of("0123456789") == std::string::npos){
         numOfPlayers = std::stoi(numInput);
     }
@@ -66,18 +92,18 @@ void Mtmchkin::getNumOfPlayers(int &numOfPlayers){
         }
     }
 }
-void Mtmchkin::fillPlayerDeck()
+void Mtmchkin::fillPlayerDeck(int &numOfPlayers)
 {
     string input;
     string name;
     string type;
-    string playerCounter;
-    
-    
-    int tmp=m_playersNumber;
+    getline(std::cin,input);
+    getNumOfPlayers(input,numOfPlayers);
+    int tmp=numOfPlayers;
+    printInsertPlayerMessage();
+
     while(getline(std::cin, input) && tmp>0)
     {
-        printInsertPlayerMessage();
         std::cin>>input;
         int cut=input.find(SPACE);
 
@@ -101,6 +127,8 @@ void Mtmchkin::fillPlayerDeck()
             }
 
         }
+        printInsertPlayerMessage();
+
     }
 }
 
@@ -237,6 +265,7 @@ void Mtmchkin::playRound()
         printTurnStartMessage(m_PlayersDeck.front()->get_name());
         Card current_card=*m_CardsDeck.front();
         current_card.applyEncounter(*m_PlayersDeck.front());
+
         m_CardsDeck.push_back(std::move(m_CardsDeck.front()));
         m_CardsDeck.pop_front();
         if(m_PlayersDeck.front()->isKnockedOut())
@@ -247,6 +276,12 @@ void Mtmchkin::playRound()
         {
             m_winners.push_back(std::move(m_PlayersDeck.front()));
         }
+
+    }
+    if(isGameOver())
+    {
+        printGameEndMessage();
+//        printLeaderBoard();
     }
 
     m_roundPlayed++;
@@ -259,14 +294,13 @@ int Mtmchkin::getNumberOfRounds() const
 
 bool Mtmchkin::isGameOver() const
 {
-    for(auto ptr=m_PlayersDeck.begin();ptr!=m_PlayersDeck.end();++ptr)
+    if(m_winners.size()+m_losers.size()==m_PlayersDeck.size())
     {
-        if(!(*ptr)->isKnockedOut() || (*ptr)->getLevel()<10)
-        {
-            return true;
-        }
+        return true;
+
     }
     return false;
+
 
 }
 
