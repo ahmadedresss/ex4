@@ -1,0 +1,24 @@
+std::string Mtmchkin::getAndCheckTeamSize() const 
+{
+    printEnterTeamSizeMessage();
+    std::string teamSize;
+    bool inputInValid = true;
+    while (inputInValid)
+    {
+        try
+        {
+            if (!std::getline(std::cin, teamSize) || std::stoi(teamSize) < MIN_TEAM_SIZE
+                || std::stoi(teamSize) > MAX_TEAM_SIZE)
+            {
+                throw DeckFileInvalidSize();
+            }
+            inputInValid = false;
+        }
+        catch (...)
+        {
+            printInvalidTeamSize();
+            printEnterTeamSizeMessage();
+        }
+    }
+    return teamSize;
+}
