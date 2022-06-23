@@ -150,11 +150,11 @@ void Mtmchkin::fillPlayerDeck(int &numOfPlayers)
 
 std::unique_ptr<Card> Mtmchkin::classifyCards(const string& name)
 {
-   if(name=="Barfight")
-    return std::unique_ptr<Card>(new Barfight());
+    if(name=="Barfight")
+        return std::unique_ptr<Card>(new Barfight());
 
-   if (name =="Vampire")
-       return std::unique_ptr<Card>(new Vampire());
+    if (name =="Vampire")
+        return std::unique_ptr<Card>(new Vampire());
 
     if (name =="Pitfall")
         return std::unique_ptr<Card>(new Pitfall());
@@ -202,7 +202,7 @@ std::unique_ptr<Player> Mtmchkin::classifyPlayers(const string& name , const str
 bool Mtmchkin::checkCardType(std::string &type) const
 {
     if(type=="Barfight" ||type=="Dragon" ||type=="Fairy" || type=="Goblin"||
-    type=="Merchant" || type=="Pitfall" || type=="Treasure" || type=="Vampire")
+       type=="Merchant" || type=="Pitfall" || type=="Treasure" || type=="Vampire")
     {
         return true;
     }
@@ -246,7 +246,7 @@ bool Mtmchkin::checkPlayerStatus(Player& player) const
 bool Mtmchkin::checkPlayerSize(string& num) const
 {
     if(num.find_first_not_of("0123456789")==string::npos)
-    return false;
+        return false;
 
     int numOfPlayers= std::stoi(num);
     if(numOfPlayers<2 || numOfPlayers>6)
@@ -267,8 +267,8 @@ void Mtmchkin::playRound()
             continue;
         }
         printTurnStartMessage(m_PlayersDeck.front()->get_name());
-        Card current_card=*m_CardsDeck.front();
-        current_card.applyEncounter(*m_PlayersDeck.front());
+        std::unique_ptr<Card>current_card=std::move(m_CardsDeck.front());
+        current_card->applyEncounter(*m_PlayersDeck.front());
 
         m_CardsDeck.push_back(std::move(m_CardsDeck.front()));
         m_CardsDeck.pop_front();
@@ -335,5 +335,4 @@ void Mtmchkin::printLeaderBoard() const
         ranking++;
     }
 }
-
 
