@@ -1,24 +1,54 @@
-std::string Mtmchkin::getAndCheckTeamSize() const 
+//
+// Created by momok on 6/20/2022.
+//
+#include <iostream>
+#include <cstring>
+
+#ifndef HW4_EXCEPTIONS_H
+#define HW4_EXCEPTIONS_H
+
+using std::string;
+
+class DeckFileNotFound : public std::exception
 {
-    printEnterTeamSizeMessage();
-    std::string teamSize;
-    bool inputInValid = true;
-    while (inputInValid)
+public:
+    const char* what() const noexcept override
     {
-        try
-        {
-            if (!std::getline(std::cin, teamSize) || std::stoi(teamSize) < MIN_TEAM_SIZE
-                || std::stoi(teamSize) > MAX_TEAM_SIZE)
-            {
-                throw DeckFileInvalidSize();
-            }
-            inputInValid = false;
-        }
-        catch (...)
-        {
-            printInvalidTeamSize();
-            printEnterTeamSizeMessage();
-        }
+     return "Deck File Error: File not found";
     }
-    return teamSize;
-}
+};
+
+
+
+class DeckFileFormatError : public std::exception
+{
+private:
+    std::string m_num_of_line ;
+
+public:
+    explicit DeckFileFormatError(string& line) : m_num_of_line(line)
+    {
+    }
+    const char* what() const noexcept override
+    {
+        string tmp="Deck File Error: File format error in line " + m_num_of_line;
+        return tmp.c_str();
+    }
+
+};
+
+
+class DeckFileInvalidSize : public std::exception
+{
+public:
+
+        const char *what() const noexcept override
+        {
+            return "Deck File Error: Deck size is invalid";
+        }
+
+};
+
+
+
+#endif //HW4_EXCEPTIONS_H
