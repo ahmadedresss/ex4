@@ -47,7 +47,7 @@ Mtmchkin::Mtmchkin(const std::string fileName):m_roundPlayed(0)
     int tmp=0;
 
     fillPlayerDeck(tmp);
-   myFile.close();
+    myFile.close();
 
 }
 
@@ -86,19 +86,32 @@ void Mtmchkin::fillCardsDeck(const std::string& fileName)
 */
 
 void Mtmchkin::getNumOfPlayers(string &numInput, int &numOfPlayers){
-    if( numInput != "" && numInput.find_first_not_of("0123456789") == std::string::npos){
-        numOfPlayers = std::stoi(numInput);
+    try {
+        if (numInput != "" && numInput.find_first_not_of("0123456789") == std::string::npos) {
+            numOfPlayers = std::stoi(numInput);
+        }
+    }
+    catch(...)
+    {
+
     }
 
     while(numOfPlayers < 2 || numOfPlayers > 6){
         printInvalidTeamSize();
         printEnterTeamSizeMessage();
         getline(std::cin, numInput);
-        if(numInput != "" && numInput.find_first_not_of("0123456789") == std::string::npos){
-            numOfPlayers = std::stoi(numInput);
+        try {
+            if (numInput != "" && numInput.find_first_not_of("0123456789") == std::string::npos) {
+                numOfPlayers = std::stoi(numInput);
+            }
+        }
+        catch(...)
+        {
+
         }
     }
 }
+
 void Mtmchkin::fillPlayerDeck(int &numOfPlayers)
 {
     string input;
@@ -106,50 +119,30 @@ void Mtmchkin::fillPlayerDeck(int &numOfPlayers)
     string type;
     getline(std::cin,input);
     getNumOfPlayers(input,numOfPlayers);
-    int tmp=numOfPlayers;
-    printInsertPlayerMessage();
 
-    while(getline(std::cin, input) && tmp>0)
-    {
-        if(checkName(name) && checkPlayerType(type))
+
+
+    bool flag=true;
+    for (int i = 0; i < numOfPlayers; ++i) {
+
         printInsertPlayerMessage();
+        do{
+            getline(std::cin, input);
 
-        int cut=input.find(SPACE);
+            int cut=input.find(SPACE);
+        if(cut<0)
+          throw;
+            name=input.substr(0,cut);
+            type=input.substr(cut+1);
 
-        name=input.substr(0,cut);
-        type=input.substr(cut+1);
+            flag=checkName(name) && checkPlayerType(type);
+        }while(!flag);
 
-        if(checkName(name) && checkPlayerType(type))
-        {
-            m_PlayersDeck.push_back(std::move(classifyPlayers(name,type)));
-            tmp--;
-        }
-        else
-        {
-            if(!checkName(name))
-            {
-                printInvalidName();
-            }
-            else
-            {
-                printInvalidClass();
-            }
-
-        }
-
+        m_PlayersDeck.push_back(std::move(classifyPlayers(name,type)));
     }
+
 }
 
-/*
- * while(!checkName(name)|| !checkPlayerType(type))
-            {
-                std::cin>>input;
-                int cut=input.find(SPACE);
-
-                name=input.substr(0,cut);
-                type=input.substr(cut+1);
-            }
- */
 //////////-----Classifing-----////////////
 
 std::unique_ptr<Card> Mtmchkin::classifyCards(const string& name)
@@ -214,15 +207,19 @@ bool Mtmchkin::checkCardType(std::string &type) const
 }
 bool Mtmchkin::checkName(const std::string &name) const
 {
+
     int length=name.size();
     if(length>15||name.empty())
+    {
+        printInvalidName();
         return false;
-
+    }
 
     for(int i=0;i<length;i++)
     {
         if(!isalpha(name[i]))
         {
+            printInvalidName();
             return false;
         }
     }
@@ -235,6 +232,7 @@ bool Mtmchkin::checkPlayerType(std::string &type) const
     {
         return true;
     }
+    printInvalidClass();
     return false;
 }
 bool Mtmchkin::checkPlayerStatus(Player& player) const
@@ -251,7 +249,6 @@ bool Mtmchkin::checkPlayerSize(string& num) const
 {
     if(num.find_first_not_of("0123456789")==string::npos)
         return false;
-
     int numOfPlayers= std::stoi(num);
     if(numOfPlayers<2 || numOfPlayers>6)
         return false;
