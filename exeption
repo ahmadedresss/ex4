@@ -9,6 +9,7 @@
 
 using std::string;
 
+
 class DeckFileNotFound : public std::exception
 {
 public:
@@ -24,14 +25,16 @@ class DeckFileFormatError : public std::exception
 {
 private:
     std::string m_num_of_line ;
+    int m_line;
 
 public:
-    explicit DeckFileFormatError(string& line) : m_num_of_line(line)
+    explicit DeckFileFormatError(int line) :m_line(line),m_num_of_line("Deck File Error: File format error in line ")
     {
+        
     }
     const char* what() const noexcept override
     {
-        string tmp="Deck File Error: File format error in line " + m_num_of_line;
+        string tmp= m_num_of_line + std::to_string(m_line) ;
         return tmp.c_str();
     }
 
